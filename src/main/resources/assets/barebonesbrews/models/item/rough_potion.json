@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "barebonesbrews:item/potion_overlay",
+    "layer1": "barebonesbrews:item/glass_bottle"
+  }
+}
+

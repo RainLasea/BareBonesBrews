@@ -27,7 +27,7 @@ modId="${mod_id}" #mandatory
 version="${mod_version}" #mandatory
 
 # A display name for the mod
-displayName="${mod_name}" #mandatory
+displayName="${mod_name} | 粗简制药" #mandatory
 
 # A URL to query for updates for this mod. See the JSON update specification https://docs.neoforged.net/docs/misc/updatechecker/
 #updateJSONURL="https://change.me.example.invalid/updates.json" #optional
@@ -36,22 +36,24 @@ displayName="${mod_name}" #mandatory
 #displayURL="https://change.me.to.your.mods.homepage.example.invalid/" #optional
 
 # A file name (in the root of the mod JAR) containing a logo for display
-#logoFile="examplemod.png" #optional
+#logoFile="barebonesbrews.png" #optional
 
 # A text field displayed in the mod UI
 #credits="" #optional
 
 # The authors of the mod, displayed in the mod UI (optional)
-#authors=""
+authors="AbyssLasea"
 
 # The description text for the mod (multi line!) (#mandatory)
 description='''
-Example mod description.
+BareBonesBrews — a Minecraft mod about brewing with the bare essentials.
+粗简制药 —— 一个专注于最朴素酿造玩法的 Minecraft 模组。
 '''
 
 # The [[mixins]] block allows you to declare your mixin config to FML so that it gets loaded.
-#[[mixins]]
-#config="${mod_id}.mixins.json"
+# Adds persisted brew state to vanilla cauldrons and exposes the vanilla brewing table read-only.
+[[mixins]]
+config="${mod_id}.mixins.json"
 
 # The [[accessTransformers]] block allows you to declare where your AT file is.
 # If this block is omitted, a fallback attempt will be made to load an AT from META-INF/accesstransformer.cfg

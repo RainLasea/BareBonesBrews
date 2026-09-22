@@ -1,0 +1,17 @@
+{
+  "item.barebonesbrews.rough_potion": "粗制药水",
+  "item.barebonesbrews.rough_potion.named": "粗制%s",
+  "message.barebonesbrews.summary": "粗简制药：%s 种粗制药水变体，%s 种已识别酿造材料。",
+  "barebonesbrews.configuration.title": "粗简制药配置",
+  "barebonesbrews.configuration.section.barebonesbrews-common.toml": "粗简制药配置",
+  "barebonesbrews.configuration.section.barebonesbrews-common.toml.title": "粗简制药配置",
+  "barebonesbrews.configuration.enable_rough_potions": "启用粗制药水",
+  "barebonesbrews.configuration.duration_multiplier": "持续时间倍率",
+  "barebonesbrews.configuration.round_duration_up": "持续时间向上取整",
+  "barebonesbrews.configuration.min_duration_ticks": "最短持续时间（刻）",
+  "barebonesbrews.configuration.amplifier_reduction": "效果等级削减",
+  "barebonesbrews.configuration.min_amplifier": "最低效果等级",
+  "barebonesbrews.configuration.excluded_namespaces": "排除的命名空间",
+  "barebonesbrews.configuration.enable_cauldron_recipes": "启用炼药锅配方",
+  "barebonesbrews.configuration.show_summary_message": "显示摘要提示"
+}

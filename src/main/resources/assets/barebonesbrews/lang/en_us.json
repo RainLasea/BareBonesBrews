@@ -1,0 +1,17 @@
+{
+  "item.barebonesbrews.rough_potion": "Crude Potion",
+  "item.barebonesbrews.rough_potion.named": "Crude %s",
+  "message.barebonesbrews.summary": "BareBonesBrews: %s rough potion variants, %s known brewing ingredients.",
+  "barebonesbrews.configuration.title": "BareBonesBrews Config",
+  "barebonesbrews.configuration.section.barebonesbrews-common.toml": "BareBonesBrews Config",
+  "barebonesbrews.configuration.section.barebonesbrews-common.toml.title": "BareBonesBrews Config",
+  "barebonesbrews.configuration.enable_rough_potions": "Enable Rough Potions",
+  "barebonesbrews.configuration.duration_multiplier": "Duration Multiplier",
+  "barebonesbrews.configuration.round_duration_up": "Round Duration Up",
+  "barebonesbrews.configuration.min_duration_ticks": "Minimum Duration (ticks)",
+  "barebonesbrews.configuration.amplifier_reduction": "Amplifier Reduction",
+  "barebonesbrews.configuration.min_amplifier": "Minimum Amplifier",
+  "barebonesbrews.configuration.excluded_namespaces": "Excluded Namespaces",
+  "barebonesbrews.configuration.enable_cauldron_recipes": "Enable Cauldron Recipes",
+  "barebonesbrews.configuration.show_summary_message": "Show Summary Message"
+}

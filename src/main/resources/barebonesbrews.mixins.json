@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8.5",
+  "package": "lasea.barebonesbrews.mixin",
+  "plugin": "lasea.barebonesbrews.mixin.BareBonesBrewsMixinPlugin",
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "mixins": [
+    "CauldronEntityBlockMixin",
+    "HexaliaSmallCauldronContentsMixin",
+    "PotionBrewingAccessor",
+    "PotionMixAccessor"
+  ]
+}
