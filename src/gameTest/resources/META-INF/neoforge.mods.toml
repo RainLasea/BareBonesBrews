@@ -1,0 +1,15 @@
+modLoader="javafml"
+loaderVersion="[1,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="barebonesbrews_tests"
+version="1"
+displayName="BareBonesBrews Game Tests"
+
+[[dependencies.barebonesbrews_tests]]
+modId="barebonesbrews"
+type="required"
+versionRange="[1,)"
+ordering="AFTER"
+side="BOTH"

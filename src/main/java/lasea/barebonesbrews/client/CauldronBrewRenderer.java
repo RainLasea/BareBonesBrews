@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 
 import lasea.barebonesbrews.brewing.CauldronBrewBlockEntity;
+import lasea.barebonesbrews.brewing.CauldronBrewing;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -52,7 +53,7 @@ public final class CauldronBrewRenderer implements BlockEntityRenderer<CauldronB
         }
         long positionSeed = brew.getBlockPos().asLong();
 
-        int count = Math.min(ingredients.size(), 4);
+        int count = Math.min(ingredients.size(), CauldronBrewing.MAX_INGREDIENTS);
         for (int index = 0; index < count; index++) {
             ItemStack stack = ingredients.get(index);
             if (stack.isEmpty()) {

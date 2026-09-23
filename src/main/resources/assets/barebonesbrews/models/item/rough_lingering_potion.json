@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "barebonesbrews:item/rough_lingering_potion_overlay",
+    "layer1": "barebonesbrews:item/rough_lingering_potion_bottle"
+  }
+}

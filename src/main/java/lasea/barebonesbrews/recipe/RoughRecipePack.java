@@ -3,7 +3,8 @@ package lasea.barebonesbrews.recipe;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -12,15 +13,17 @@ import java.util.TreeMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.JsonOps;
 
 import lasea.barebonesbrews.BareBonesBrews;
 import lasea.barebonesbrews.Config;
 import lasea.barebonesbrews.brewing.BrewingMap;
+import lasea.barebonesbrews.brewing.CauldronBrewing;
+import lasea.barebonesbrews.item.ModItems;
 import lasea.barebonesbrews.potion.RoughPotionFactory;
 import net.minecraft.SharedConstants;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
@@ -35,6 +38,9 @@ import net.minecraft.server.packs.repository.KnownPack;
 import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.server.packs.resources.IoSupplier;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
@@ -48,6 +54,7 @@ public final class RoughRecipePack implements PackResources {
     private static final String DESCRIPTION = "BareBonesBrews generated recipes";
     private static final ResourceLocation HEXALIA_RECIPE_TYPE =
             ResourceLocation.fromNamespaceAndPath("hexalia", "small_cauldron");
+    private static final int HEXALIA_MAX_INGREDIENTS = 4;
 
     private final PackLocationInfo location = new PackLocationInfo(PACK_ID, Component.literal(DESCRIPTION),
             PackSource.BUILT_IN, Optional.of(new KnownPack(BareBonesBrews.MODID, PACK_ID, modVersion())));
@@ -130,61 +137,108 @@ public final class RoughRecipePack implements PackResources {
             return Map.copyOf(generated);
         }
 
-        Map<ResourceLocation, Ingredient> selected =
-                RoughRecipeBuilder.selectIngredients(BrewingMap.snapshot());
         boolean useHexalia = ModList.get().isLoaded("hexalia");
-        BuiltInPotions.sorted().forEach(source -> {
+        if (!useHexalia) {
+            var source = Potions.AWKWARD;
             ResourceLocation sourceId = RoughPotionFactory.idOf(source);
-            Ingredient reagent = sourceId == null ? null : selected.get(sourceId);
-            if (reagent == null) {
-                return;
+            if (sourceId != null && RoughPotionFactory.isBrewable(source)) {
+                ItemStack result = RoughPotionFactory.create(source);
+                ResourceLocation recipeId = RoughPotionFactory.recipeId(sourceId);
+                String path = "data/" + BareBonesBrews.MODID + "/recipe/"
+                        + recipeId.getPath() + ".json";
+                generated.put(path, json(recipeJson(baseIngredient(), result,
+                        RoughRecipeBuilder.durationFor(source))));
             }
-            ItemStack result = RoughPotionFactory.create(source);
-            ResourceLocation recipeId = useHexalia
-                    ? hexaliaRecipeId(sourceId) : RoughPotionFactory.recipeId(sourceId);
-            String path = "data/" + BareBonesBrews.MODID + "/recipe/" + recipeId.getPath() + ".json";
-            generated.put(path, json(useHexalia
-                    ? hexaliaRecipeJson(reagent, RoughRecipeBuilder.durationFor(source))
-                    : recipeJson(result, reagent, RoughRecipeBuilder.durationFor(source))));
-        });
+        }
+        buildPotionRecipes(generated, useHexalia);
 
-        Map<String, byte[]> result = Map.copyOf(generated);
-        BareBonesBrews.LOGGER.info("Generated {} unambiguous cauldron recipes", result.size() - 1);
-        return result;
+        return Map.copyOf(generated);
     }
 
-    private static ResourceLocation hexaliaRecipeId(ResourceLocation sourceId) {
-        return ResourceLocation.fromNamespaceAndPath(BareBonesBrews.MODID,
-                "hexalia_rough/" + sourceId.getNamespace() + "/" + sourceId.getPath());
+    private static void buildPotionRecipes(Map<String, byte[]> generated, boolean useHexalia) {
+        Set<String> ingredientSets = new HashSet<>();
+        Ingredient gunpowder = Ingredient.of(Items.GUNPOWDER);
+        for (BrewingMap.BrewingPath path : BrewingMap.pathsFromRoughBase()) {
+            addPotionRecipe(generated, ingredientSets, useHexalia, "potion", path.result(),
+                    path.ingredients(),
+                    RoughRecipeBuilder.durationFor(path.result()));
+
+            List<Ingredient> splashIngredients = new java.util.ArrayList<>(path.ingredients());
+            splashIngredients.add(gunpowder);
+            addPotionRecipe(generated, ingredientSets, useHexalia, "splash", path.result(),
+                    splashIngredients, RoughRecipeBuilder.durationFor(path.result()));
+
+            List<Ingredient> lingeringIngredients = new java.util.ArrayList<>(splashIngredients);
+            lingeringIngredients.add(Ingredient.of(Items.DRAGON_BREATH));
+            addPotionRecipe(generated, ingredientSets, useHexalia, "lingering", path.result(),
+                    lingeringIngredients, RoughRecipeBuilder.durationFor(path.result()));
+        }
     }
 
-    private static JsonObject hexaliaRecipeJson(Ingredient reagent, int duration) {
-        JsonObject json = new JsonObject();
+    private static void addPotionRecipe(Map<String, byte[]> generated,
+            Set<String> ingredientSets, boolean useHexalia, String form, Holder<Potion> potion,
+            List<Ingredient> potionIngredients, int duration) {
+        ResourceLocation potionId = RoughPotionFactory.idOf(potion);
+        int ingredientCount = potionIngredients.size() + (useHexalia ? 0 : 1);
+        int capacity = useHexalia ? HEXALIA_MAX_INGREDIENTS : CauldronBrewing.MAX_INGREDIENTS;
+        if (potionId == null || ingredientCount == 0 || ingredientCount > capacity) {
+            return;
+        }
+        JsonArray ingredients = useHexalia ? new JsonArray() : baseIngredient();
+        for (Ingredient ingredient : potionIngredients) {
+            ingredients.add(Ingredient.CODEC_NONEMPTY.encodeStart(JsonOps.INSTANCE, ingredient)
+                    .getOrThrow());
+        }
+        String signature = ingredientSignature(ingredients);
+        if (!ingredientSets.add(signature)) {
+            return;
+        }
+
+        ResourceLocation recipeId = ResourceLocation.fromNamespaceAndPath(BareBonesBrews.MODID,
+                (useHexalia ? "hexalia_rough/" : "rough_brewing/")
+                        + form + "/" + potionId.getNamespace() + "/" + potionId.getPath());
+        String resourcePath = "data/" + BareBonesBrews.MODID + "/recipe/"
+                + recipeId.getPath() + ".json";
+        ItemStack result = switch (form) {
+            case "splash" -> RoughPotionFactory.createSplash(potion);
+            case "lingering" -> RoughPotionFactory.createLingering(potion);
+            default -> RoughPotionFactory.create(potion);
+        };
+        JsonObject recipe = useHexalia
+                ? hexaliaRecipeJson(ingredients, result, duration)
+                : recipeJson(ingredients, result, duration);
+        generated.put(resourcePath, json(recipe));
+    }
+
+    private static JsonObject hexaliaRecipeJson(JsonArray ingredients, ItemStack result, int duration) {
+        JsonObject json = recipeJson(ingredients, result, duration);
         json.addProperty("type", HEXALIA_RECIPE_TYPE.toString());
-        json.add("ingredients", ingredients(reagent));
-        JsonObject result = new JsonObject();
-        result.addProperty("item", BareBonesBrews.MODID + ":rough_potion");
-        json.add("result", result);
-        json.addProperty("duration", duration);
         return json;
     }
 
-    private static JsonObject recipeJson(ItemStack result, Ingredient reagent, int duration) {
+    private static String ingredientSignature(JsonArray ingredients) {
+        return java.util.stream.StreamSupport.stream(ingredients.spliterator(), false)
+                .map(Object::toString)
+                .sorted()
+                .reduce((left, right) -> left + "\n" + right)
+                .orElse("");
+    }
+
+    private static JsonObject recipeJson(JsonArray ingredients, ItemStack result, int duration) {
         JsonObject json = new JsonObject();
         json.addProperty("type", ModRecipes.ROUGH_BREWING_ID.toString());
-        json.add("ingredients", ingredients(reagent));
+        json.add("ingredients", ingredients);
         json.add("result", ItemStack.CODEC.encodeStart(
                 RegistryOps.create(JsonOps.INSTANCE, registryAccess()), result).getOrThrow());
         json.addProperty("duration", duration);
         return json;
     }
 
-    private static JsonArray ingredients(Ingredient reagent) {
+    private static JsonArray baseIngredient() {
         JsonArray ingredients = new JsonArray();
         JsonObject base = new JsonObject();
-        base.addProperty("tag", BareBonesBrews.MODID + ":rough_base");
+        base.addProperty("tag", ModItems.ROUGH_BASE_TAG.location().toString());
         ingredients.add(base);
-        ingredients.add(Ingredient.CODEC.encodeStart(JsonOps.INSTANCE, reagent).getOrThrow());
         return ingredients;
     }
 
@@ -208,13 +262,5 @@ public final class RoughRecipePack implements PackResources {
 
     private static byte[] json(JsonObject object) {
         return GSON.toJson(object).getBytes(StandardCharsets.UTF_8);
-    }
-
-    private static final class BuiltInPotions {
-        private static java.util.stream.Stream<net.minecraft.core.Holder.Reference<net.minecraft.world.item.alchemy.Potion>> sorted() {
-            return net.minecraft.core.registries.BuiltInRegistries.POTION.holders()
-                    .filter(RoughPotionFactory::isEligible)
-                    .sorted(Comparator.comparing(holder -> holder.key().location()));
-        }
     }
 }

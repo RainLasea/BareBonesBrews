@@ -6,6 +6,11 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 
 /**
  * The block entity type backing rough brewing on a vanilla cauldron.
@@ -14,6 +19,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
  * block-entity support because {@code CauldronEntityBlockMixin} adds {@code EntityBlock} to
  * {@code AbstractCauldronBlock}.
  */
+@EventBusSubscriber(modid = BareBonesBrews.MODID)
 public final class ModBrewing {
 
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
@@ -28,4 +34,11 @@ public final class ModBrewing {
                     .build(null));
 
     private ModBrewing() {}
+
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    public static void registerCapabilities(RegisterCapabilitiesEvent event) {
+        // NeoForge already provides a water-only CauldronWrapper at normal priority.
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, CAULDRON_BLOCK_ENTITY.get(),
+                (cauldron, side) -> cauldron.fluidHandler());
+    }
 }

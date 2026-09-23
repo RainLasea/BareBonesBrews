@@ -1,9 +1,0 @@
-{
-  "replace": false,
-  "values": [
-    "#minecraft:campfires",
-    "minecraft:magma_block",
-    "minecraft:lava",
-    "minecraft:fire"
-  ]
-}

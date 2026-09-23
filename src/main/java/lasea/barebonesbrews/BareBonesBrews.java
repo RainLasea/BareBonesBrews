@@ -1,20 +1,15 @@
 package lasea.barebonesbrews;
 
-import org.slf4j.Logger;
-
-import com.mojang.logging.LogUtils;
-
 import lasea.barebonesbrews.brewing.ModBrewing;
+import lasea.barebonesbrews.brewing.RoughPotionBrewingRecipe;
 import lasea.barebonesbrews.component.ModComponents;
+import lasea.barebonesbrews.fluid.ModFluids;
 import lasea.barebonesbrews.item.ModItems;
-import lasea.barebonesbrews.potion.RoughPotionFactory;
 import lasea.barebonesbrews.recipe.ModRecipes;
 import lasea.barebonesbrews.recipe.RoughRecipePack;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.PackSelectionConfig;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.Pack;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -23,7 +18,7 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.brewing.RegisterBrewingRecipesEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 
 /**
@@ -36,10 +31,11 @@ import net.neoforged.neoforge.event.server.ServerStartedEvent;
 public class BareBonesBrews {
 
     public static final String MODID = "barebonesbrews";
-    public static final Logger LOGGER = LogUtils.getLogger();
 
     public BareBonesBrews(IEventBus modEventBus, ModContainer modContainer) {
         ModComponents.COMPONENT_TYPES.register(modEventBus);
+        ModFluids.TYPES.register(modEventBus);
+        ModFluids.FLUIDS.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
         ModRecipes.RECIPE_TYPES.register(modEventBus);
         ModRecipes.RECIPE_SERIALIZERS.register(modEventBus);
@@ -52,7 +48,7 @@ public class BareBonesBrews {
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
 
         net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(this::onServerStarted);
-        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(this::onPlayerLoggedIn);
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(this::onRegisterBrewingRecipes);
     }
 
     private void onCommonSetup(FMLCommonSetupEvent event) {
@@ -61,6 +57,11 @@ public class BareBonesBrews {
 
     private void onBuildCreativeTab(BuildCreativeModeTabContentsEvent event) {
         ModItems.addToCreativeTabs(event);
+    }
+
+    private void onRegisterBrewingRecipes(RegisterBrewingRecipesEvent event) {
+        // The recipe checks the current config, so toggling it does not require rebuilding the stand.
+        event.getBuilder().addRecipe(new RoughPotionBrewingRecipe());
     }
 
     // ------------------------------------------------------------------ recipe injection
@@ -85,13 +86,13 @@ public class BareBonesBrews {
                     @Override
                     public net.minecraft.server.packs.PackResources openPrimary(
                             net.minecraft.server.packs.PackLocationInfo location) {
-                        return pack;
+                        return new RoughRecipePack();
                     }
 
                     @Override
                     public net.minecraft.server.packs.PackResources openFull(
                             net.minecraft.server.packs.PackLocationInfo location, Pack.Metadata metadata) {
-                        return pack;
+                        return new RoughRecipePack();
                     }
                 },
                 PackType.SERVER_DATA,
@@ -102,24 +103,6 @@ public class BareBonesBrews {
         PotionBrewing brewing = event.getServer().potionBrewing();
         if (brewing != null) {
             lasea.barebonesbrews.brewing.BrewingMap.capture(brewing);
-        } else {
-            LOGGER.warn("[BareBonesBrews] Server has no brewing table; brewing recipes may be incomplete.");
         }
-    }
-
-    // ------------------------------------------------------------------ diagnostics
-
-    /** Prints a short summary in chat, so the mod is self-explanatory. */
-    private void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-        if (!Config.showSummaryMessage()) {
-            return;
-        }
-        Player player = event.getEntity();
-        if (player.level().isClientSide) {
-            return;
-        }
-        player.displayClientMessage(Component.translatable("message.barebonesbrews.summary",
-                RoughPotionFactory.eligiblePotionCount(),
-                lasea.barebonesbrews.brewing.BrewingMap.size()), false);
     }
 }

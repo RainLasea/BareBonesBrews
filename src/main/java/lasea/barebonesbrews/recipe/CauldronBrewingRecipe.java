@@ -1,6 +1,7 @@
 package lasea.barebonesbrews.recipe;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -17,6 +18,7 @@ import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.common.util.RecipeMatcher;
 
 /**
  * Brewing performed in a <em>vanilla</em> cauldron.
@@ -29,7 +31,7 @@ import net.minecraft.world.level.Level;
  * <pre>{@code
  * {
  *   "type": "barebonesbrews:rough_brewing",
- *   "ingredients": [ { "tag": "barebonesbrews:rough_base" }, { "item": "minecraft:blaze_powder" } ],
+ *   "ingredients": [ { "tag": "c:mushrooms" }, { "item": "minecraft:blaze_powder" } ],
  *   "result": {
  *     "id": "barebonesbrews:rough_potion",
  *     "count": 1,
@@ -83,31 +85,14 @@ public final class CauldronBrewingRecipe implements Recipe<RecipeInput> {
 
     @Override
     public boolean matches(RecipeInput input, Level level) {
-        int filled = 0;
+        List<ItemStack> filled = new ArrayList<>();
         for (int i = 0; i < input.size(); i++) {
             if (!input.getItem(i).isEmpty()) {
-                filled++;
+                filled.add(input.getItem(i));
             }
         }
-        if (filled != ingredients.size()) {
-            return false;
-        }
-
-        boolean[] used = new boolean[input.size()];
-        for (Ingredient ingredient : ingredients) {
-            boolean found = false;
-            for (int i = 0; i < input.size(); i++) {
-                if (!used[i] && ingredient.test(input.getItem(i))) {
-                    used[i] = true;
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                return false;
-            }
-        }
-        return true;
+        // A broad tag must not steal the only input accepted by a narrower ingredient.
+        return RecipeMatcher.findMatches(filled, ingredients) != null;
     }
 
     @Override

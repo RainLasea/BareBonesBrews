@@ -56,14 +56,6 @@ public final class Config {
             .comment("Generate the rough cauldron recipes (mushroom + the potion's original reagent).")
             .define("enable_cauldron_recipes", true);
 
-    // ------------------------------------------------------------------ localization
-
-    // The translated rough prefix wraps the source potion's normal translated name.
-
-    public static final ModConfigSpec.BooleanValue SHOW_SUMMARY_MESSAGE = BUILDER
-            .comment("Tell joining players how many rough potions were derived.")
-            .define("show_summary_message", true);
-
     static final ModConfigSpec SPEC = BUILDER.build();
 
     private static volatile Set<String> excluded = Set.of();
@@ -77,12 +69,16 @@ public final class Config {
 
     @SubscribeEvent
     static void onLoad(ModConfigEvent.Loading event) {
-        rebuildExclusions();
+        if (event.getConfig().getSpec() == SPEC) {
+            rebuildExclusions();
+        }
     }
 
     @SubscribeEvent
     static void onReload(ModConfigEvent.Reloading event) {
-        rebuildExclusions();
+        if (event.getConfig().getSpec() == SPEC) {
+            rebuildExclusions();
+        }
     }
 
     private static void rebuildExclusions() {
@@ -104,19 +100,7 @@ public final class Config {
 
     // ------------------------------------------------------------------ accessors
 
-    /** Reads a spec value, falling back to the declared default while the config is still unloaded. */
-    private static <T> T read(ModConfigSpec.ConfigValue<T> value, T fallback) {
-        if (!ready) {
-            return fallback;
-        }
-        try {
-            return value.get();
-        } catch (IllegalStateException e) {
-            return fallback;
-        }
-    }
-
-    /** Same as {@link #read}, for the primitive-typed spec values. */
+    /** Uses the declared default while the config is still unloaded. */
     private static boolean readBoolean(ModConfigSpec.BooleanValue value, boolean fallback) {
         if (!ready) {
             return fallback;
@@ -182,11 +166,6 @@ public final class Config {
 
     public static boolean roundDurationUp() {
         return readBoolean(ROUND_DURATION_UP, true);
-    }
-
-    /** Mirrors the {@code show_summary_message} default of {@code true}. */
-    public static boolean showSummaryMessage() {
-        return readBoolean(SHOW_SUMMARY_MESSAGE, true);
     }
 
     private Config() {}

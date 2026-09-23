@@ -1,7 +1,11 @@
 {
+  "fluid_type.barebonesbrews.rough_potion": "粗制药水",
   "item.barebonesbrews.rough_potion": "粗制药水",
   "item.barebonesbrews.rough_potion.named": "粗制%s",
-  "message.barebonesbrews.summary": "粗简制药：%s 种粗制药水变体，%s 种已识别酿造材料。",
+  "item.barebonesbrews.rough_splash_potion": "粗制喷溅药水",
+  "item.barebonesbrews.rough_splash_potion.named": "喷溅型粗制%s",
+  "item.barebonesbrews.rough_lingering_potion": "粗制滞留药水",
+  "item.barebonesbrews.rough_lingering_potion.named": "滞留型粗制%s",
   "barebonesbrews.configuration.title": "粗简制药配置",
   "barebonesbrews.configuration.section.barebonesbrews-common.toml": "粗简制药配置",
   "barebonesbrews.configuration.section.barebonesbrews-common.toml.title": "粗简制药配置",
@@ -13,5 +17,9 @@
   "barebonesbrews.configuration.min_amplifier": "最低效果等级",
   "barebonesbrews.configuration.excluded_namespaces": "排除的命名空间",
   "barebonesbrews.configuration.enable_cauldron_recipes": "启用炼药锅配方",
-  "barebonesbrews.configuration.show_summary_message": "显示摘要提示"
+  "config.jade.plugin_barebonesbrews.cauldron_brewing": "锅内材料",
+  "jade.barebonesbrews.ingredients": "锅内材料",
+  "jei.barebonesbrews.rough_brewing": "粗制酿造",
+  "emi.category.barebonesbrews.rough_brewing": "粗制酿造",
+  "jei.barebonesbrews.duration": "酿造时间：%s 秒"
 }

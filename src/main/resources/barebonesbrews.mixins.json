@@ -8,8 +8,11 @@
   },
   "mixins": [
     "CauldronEntityBlockMixin",
+    "CauldronFluidInteractionMixin",
     "HexaliaSmallCauldronContentsMixin",
+    "HexaliaSmallCauldronSerializerMixin",
     "PotionBrewingAccessor",
-    "PotionMixAccessor"
+    "PotionMixAccessor",
+    "ThrownPotionMixin"
   ]
 }

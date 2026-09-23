@@ -20,8 +20,7 @@ import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
  *
  * <p>Vanilla only registers a potion tint for {@code minecraft:potion}, {@code splash_potion} and
  * {@code lingering_potion}, so our own potion items would otherwise render as a flat white overlay.
- * Layer 0 is the vanilla potion overlay, layer 1 the bottle, layer 2 the grit decal, which is left
- * untinted on purpose.
+ * Layer 0 is the potion-colored liquid and layer 1 is the untinted bottle.
  */
 @EventBusSubscriber(modid = lasea.barebonesbrews.BareBonesBrews.MODID, value = Dist.CLIENT)
 public final class PotionItemColors {
@@ -42,8 +41,8 @@ public final class PotionItemColors {
         }
         if (level != null && pos != null
                 && level.getBlockEntity(pos) instanceof lasea.barebonesbrews.brewing.CauldronBrewBlockEntity brew
-                && brew.isReady() && brew.brewColor() != 0) {
-            return brew.brewColor();
+                && brew.containsPotion()) {
+            return brew.fluidColor();
         }
         return level != null && pos != null
                 ? BiomeColors.getAverageWaterColor(level, pos)
@@ -54,7 +53,8 @@ public final class PotionItemColors {
 
     @SubscribeEvent
     static void onRegisterItemColors(RegisterColorHandlersEvent.Item event) {
-        event.register(POTION_TINT, ModItems.ROUGH_POTION.get());
+        event.register(POTION_TINT, ModItems.ROUGH_POTION.get(),
+                ModItems.ROUGH_SPLASH_POTION.get(), ModItems.ROUGH_LINGERING_POTION.get());
     }
 
     /** Tints the vanilla cauldron model's existing water face; no second liquid surface is drawn. */

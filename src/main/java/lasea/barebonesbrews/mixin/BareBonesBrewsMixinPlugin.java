@@ -13,7 +13,7 @@ import net.neoforged.fml.loading.FMLLoader;
 public final class BareBonesBrewsMixinPlugin implements IMixinConfigPlugin {
 
     private static final String VANILLA_CAULDRON_MIXIN = ".CauldronEntityBlockMixin";
-    private static final String HEXALIA_CAULDRON_MIXIN = ".HexaliaSmallCauldronContentsMixin";
+    private static final String HEXALIA_CAULDRON_MIXIN_PREFIX = ".HexaliaSmallCauldron";
     private boolean hexaliaLoaded;
 
     @Override
@@ -23,10 +23,11 @@ public final class BareBonesBrewsMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        if (mixinClassName.endsWith(VANILLA_CAULDRON_MIXIN)) {
+        if (mixinClassName.endsWith(VANILLA_CAULDRON_MIXIN)
+                || mixinClassName.endsWith(".CauldronFluidInteractionMixin")) {
             return !hexaliaLoaded;
         }
-        if (mixinClassName.endsWith(HEXALIA_CAULDRON_MIXIN)) {
+        if (mixinClassName.contains(HEXALIA_CAULDRON_MIXIN_PREFIX)) {
             return hexaliaLoaded;
         }
         return true;

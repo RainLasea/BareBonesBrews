@@ -23,14 +23,18 @@ public final class CauldronBrewEffects {
     private CauldronBrewEffects() {}
 
     public static void tick(Level level, BlockPos pos, CauldronBrewBlockEntity brew) {
+        VisualState state = STATES.computeIfAbsent(brew, ignored -> new VisualState());
+        int fluidTint = brew.containsPotion() ? brew.fluidColor() : -1;
+        if (state.fluidTint != fluidTint) {
+            refreshLiquidTint(level, pos);
+            state.fluidTint = fluidTint;
+        }
         if (!brew.hasBrew() || brew.fillLevel() <= 0) {
             STATES.remove(brew);
             return;
         }
 
-        VisualState state = STATES.computeIfAbsent(brew, ignored -> new VisualState());
         if (brew.isReady() && !state.ready) {
-            refreshLiquidTint(level, pos);
             completionBurst(level, pos, brew);
         }
         state.ready = brew.isReady();
@@ -141,5 +145,6 @@ public final class CauldronBrewEffects {
 
     private static final class VisualState {
         private boolean ready;
+        private int fluidTint = -1;
     }
 }

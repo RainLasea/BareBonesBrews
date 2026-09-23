@@ -1,7 +1,11 @@
 {
+  "fluid_type.barebonesbrews.rough_potion": "Crude Potion",
   "item.barebonesbrews.rough_potion": "Crude Potion",
   "item.barebonesbrews.rough_potion.named": "Crude %s",
-  "message.barebonesbrews.summary": "BareBonesBrews: %s rough potion variants, %s known brewing ingredients.",
+  "item.barebonesbrews.rough_splash_potion": "Crude Splash Potion",
+  "item.barebonesbrews.rough_splash_potion.named": "Crude Splash %s",
+  "item.barebonesbrews.rough_lingering_potion": "Crude Lingering Potion",
+  "item.barebonesbrews.rough_lingering_potion.named": "Crude Lingering %s",
   "barebonesbrews.configuration.title": "BareBonesBrews Config",
   "barebonesbrews.configuration.section.barebonesbrews-common.toml": "BareBonesBrews Config",
   "barebonesbrews.configuration.section.barebonesbrews-common.toml.title": "BareBonesBrews Config",
@@ -13,5 +17,9 @@
   "barebonesbrews.configuration.min_amplifier": "Minimum Amplifier",
   "barebonesbrews.configuration.excluded_namespaces": "Excluded Namespaces",
   "barebonesbrews.configuration.enable_cauldron_recipes": "Enable Cauldron Recipes",
-  "barebonesbrews.configuration.show_summary_message": "Show Summary Message"
+  "config.jade.plugin_barebonesbrews.cauldron_brewing": "Cauldron Ingredients",
+  "jade.barebonesbrews.ingredients": "Ingredients",
+  "jei.barebonesbrews.rough_brewing": "Rough Brewing",
+  "emi.category.barebonesbrews.rough_brewing": "Rough Brewing",
+  "jei.barebonesbrews.duration": "Brewing time: %s seconds"
 }
