@@ -16,15 +16,6 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-/**
- * Gives vanilla cauldrons a block entity.
- *
- * <p>A cauldron's own state is only its fill level. The injected block entity owns the complete brew
- * state and synchronizes the small visual subset to clients.
- *
- * <p>The mixin applies to every cauldron, but nothing changes for cauldrons only used for water: the
- * block entity starts empty and the ticker does nothing until a brew exists.
- */
 @Mixin(AbstractCauldronBlock.class)
 public abstract class CauldronEntityBlockMixin implements EntityBlock {
 

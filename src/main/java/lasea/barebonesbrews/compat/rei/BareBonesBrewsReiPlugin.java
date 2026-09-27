@@ -2,6 +2,7 @@ package lasea.barebonesbrews.compat.rei;
 
 import lasea.barebonesbrews.BareBonesBrews;
 import lasea.barebonesbrews.compat.RoughBrewingDisplayRecipes;
+import lasea.barebonesbrews.compat.client.ClientBrewingRecipes;
 import lasea.barebonesbrews.potion.RoughPotionFactory;
 import me.shedaniel.rei.api.client.plugins.REIClientPlugin;
 import me.shedaniel.rei.api.client.registry.category.CategoryRegistry;
@@ -30,7 +31,7 @@ public final class BareBonesBrewsReiPlugin implements REIClientPlugin {
 
     @Override
     public void registerDisplays(DisplayRegistry registry) {
-        RoughBrewingDisplayRecipes.create().stream()
+        ClientBrewingRecipes.create().stream()
                 .map(RoughBrewingReiDisplay::new)
                 .forEach(registry::add);
         registerBrewingStandDisplays(registry);

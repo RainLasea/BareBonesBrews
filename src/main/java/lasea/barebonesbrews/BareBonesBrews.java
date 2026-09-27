@@ -21,12 +21,6 @@ import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.brewing.RegisterBrewingRecipesEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 
-/**
- * BareBonesBrews — dynamic rough-potion compatibility for whatever potions a pack happens to have.
- *
- * <p>Rough potions are data-bearing variants of one item, just like vanilla potions. This avoids
- * mutating registries after startup and lets configuration be applied when stacks are created.
- */
 @Mod(BareBonesBrews.MODID)
 public class BareBonesBrews {
 
@@ -60,19 +54,9 @@ public class BareBonesBrews {
     }
 
     private void onRegisterBrewingRecipes(RegisterBrewingRecipesEvent event) {
-        // The recipe checks the current config, so toggling it does not require rebuilding the stand.
         event.getBuilder().addRecipe(new RoughPotionBrewingRecipe());
     }
 
-    // ------------------------------------------------------------------ recipe injection
-
-    /**
-     * Hands the game a virtual datapack holding the generated brewing recipes.
-     *
-     * <p>Registry mutation is deliberately absent here. This event also fires on the client while
-     * picking a world, which is long after every registry has been frozen - registering at this point
-     * threw {@code Registry is already frozen} and took the whole game down. This method only reads.
-     */
     private void onAddPackFinders(AddPackFindersEvent event) {
         if (event.getPackType() != PackType.SERVER_DATA) {
             return;
@@ -96,7 +80,7 @@ public class BareBonesBrews {
                     }
                 },
                 PackType.SERVER_DATA,
-                new PackSelectionConfig(true, Pack.Position.TOP, true))));
+                new PackSelectionConfig(true, Pack.Position.BOTTOM, true))));
     }
 
     private void onServerStarted(ServerStartedEvent event) {

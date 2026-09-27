@@ -21,7 +21,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.alchemy.PotionContents;
 
-/** Creates configured rough-potion stacks without adding synthetic registry entries. */
 public final class RoughPotionFactory {
 
     private RoughPotionFactory() {}
@@ -49,7 +48,6 @@ public final class RoughPotionFactory {
                 && !Config.isNamespaceExcluded(id.getNamespace());
     }
 
-    /** Includes effect-less intermediates such as awkward potion, but not empty/water. */
     public static boolean isBrewable(Holder<Potion> source) {
         ResourceLocation id = idOf(source);
         ResourceLocation empty = ResourceLocation.withDefaultNamespace("empty");

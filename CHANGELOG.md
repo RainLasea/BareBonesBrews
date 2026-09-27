@@ -20,7 +20,6 @@
 - Respect disabled brewing and excluded source potions when processing existing bottles.
 - Prevent dilution minimums from strengthening short or low-level source effects; preserve instant effect durations.
 - Rebuild the generated data pack when reopened so reloads do not reuse stale generated recipes.
-- Add automated NeoForge regression tests to the build.
 
 ## 1.0.0
 

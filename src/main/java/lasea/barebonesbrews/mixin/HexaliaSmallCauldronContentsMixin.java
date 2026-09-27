@@ -26,7 +26,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.neoforged.fml.ModList;
 
-/** Bridges generated rough recipes into Hexalia without linking against Hexalia at runtime. */
 @Pseudo
 @Mixin(targets = "net.astralya.hexalia.gameplay.smallcauldron.SmallCauldronContents", remap = false)
 public abstract class HexaliaSmallCauldronContentsMixin implements HexaliaCauldronView {

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
@@ -20,43 +21,20 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.util.RecipeMatcher;
 
-/**
- * Brewing performed in a <em>vanilla</em> cauldron.
- *
- * <p>Deliberately modelled on Hexalia's small cauldron recipe: ingredients are unordered and the
- * match requires the <em>exact</em> count to line up, which is what makes "mushroom + the potion's
- * original brewing ingredient" unambiguous.
- *
- * <p>The JSON shape is:
- * <pre>{@code
- * {
- *   "type": "barebonesbrews:rough_brewing",
- *   "ingredients": [ { "tag": "c:mushrooms" }, { "item": "minecraft:blaze_powder" } ],
- *   "result": {
- *     "id": "barebonesbrews:rough_potion",
- *     "count": 1,
- *     "components": {
- *       "barebonesbrews:source_potion": "minecraft:strength",
- *       "minecraft:potion_contents": { "custom_effects": [ ... ] }
- *     }
- *   },
- *   "duration": 400,
- *   "experience": 0.1
- * }
- * }</pre>
- */
+import lasea.barebonesbrews.brewing.CauldronBrewing;
+import lasea.barebonesbrews.component.ModComponents;
+import lasea.barebonesbrews.potion.RoughPotionFactory;
+import net.minecraft.core.component.DataComponents;
+
 public final class CauldronBrewingRecipe implements Recipe<RecipeInput> {
 
     public static final int DEFAULT_DURATION = 400;
 
-    /**
-     * The full item stack codec, so a result can carry data components.
-     *
-     * <p>A rough potion <em>is</em> its {@code minecraft:potion_contents} component, so the result has
-     * to be able to express one. The older {@code {"item": ..., "count": ...}} shape that Hexalia and
-     * vanilla potions use cannot, which is why this recipe type exists in the first place.
-     */
-    private static final Codec<ItemStack> RESULT_CODEC = ItemStack.CODEC;
+    private static final Codec<ItemStack> RESULT_CODEC = ItemStack.CODEC.validate(stack ->
+            stack.getCount() == 1 && RoughPotionFactory.isRoughPotion(stack)
+                    && stack.has(ModComponents.SOURCE_POTION.get()) && stack.has(DataComponents.POTION_CONTENTS)
+                    ? DataResult.success(stack)
+                    : DataResult.error(() -> "Cauldron result must be one rough potion with source_potion and potion_contents components"));
 
     private final NonNullList<Ingredient> ingredients;
     private final ItemStack result;
@@ -91,7 +69,6 @@ public final class CauldronBrewingRecipe implements Recipe<RecipeInput> {
                 filled.add(input.getItem(i));
             }
         }
-        // A broad tag must not steal the only input accepted by a narrower ingredient.
         return RecipeMatcher.findMatches(filled, ingredients) != null;
     }
 
@@ -107,7 +84,6 @@ public final class CauldronBrewingRecipe implements Recipe<RecipeInput> {
 
     @Override
     public boolean isSpecial() {
-        // Keeps these out of the recipe book; they are cauldron-only.
         return true;
     }
 
@@ -126,7 +102,6 @@ public final class CauldronBrewingRecipe implements Recipe<RecipeInput> {
         return ModRecipes.ROUGH_BREWING.get();
     }
 
-    /** Static factories used by the runtime recipe generator. */
     public static CauldronBrewingRecipe of(List<Ingredient> ingredients, ItemStack result, int duration, float experience) {
         NonNullList<Ingredient> list = NonNullList.create();
         list.addAll(ingredients);
@@ -136,7 +111,7 @@ public final class CauldronBrewingRecipe implements Recipe<RecipeInput> {
     public static final class Serializer implements RecipeSerializer<CauldronBrewingRecipe> {
 
         private static final MapCodec<CauldronBrewingRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-                Ingredient.CODEC_NONEMPTY.listOf().fieldOf("ingredients")
+                Ingredient.CODEC_NONEMPTY.listOf(1, CauldronBrewing.MAX_INGREDIENTS).fieldOf("ingredients")
                         .xmap(list -> {
                             NonNullList<Ingredient> out = NonNullList.create();
                             out.addAll(list);
@@ -144,8 +119,8 @@ public final class CauldronBrewingRecipe implements Recipe<RecipeInput> {
                         }, list -> list)
                         .forGetter(CauldronBrewingRecipe::getIngredients),
                 RESULT_CODEC.fieldOf("result").forGetter(recipe -> recipe.result),
-                Codec.INT.optionalFieldOf("duration", DEFAULT_DURATION).forGetter(CauldronBrewingRecipe::getDuration),
-                Codec.FLOAT.optionalFieldOf("experience", 0.0F).forGetter(CauldronBrewingRecipe::getExperience))
+                Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("duration", DEFAULT_DURATION).forGetter(CauldronBrewingRecipe::getDuration),
+                Codec.floatRange(0.0F, Float.MAX_VALUE).optionalFieldOf("experience", 0.0F).forGetter(CauldronBrewingRecipe::getExperience))
                 .apply(instance, CauldronBrewingRecipe::new));
 
         private static final StreamCodec<RegistryFriendlyByteBuf, CauldronBrewingRecipe> STREAM_CODEC =

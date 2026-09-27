@@ -14,7 +14,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** Vanilla's discrete water levels must not overwrite component-bearing or fractional fluids. */
 @Mixin(LayeredCauldronBlock.class)
 public abstract class CauldronFluidInteractionMixin {
     @Inject(method = "handlePrecipitation", at = @At("HEAD"), cancellable = true)

@@ -21,7 +21,6 @@ import snownee.jade.api.ITooltip;
 import snownee.jade.api.config.IPluginConfig;
 import snownee.jade.api.ui.IElementHelper;
 
-/** Server-authoritative Jade view for both native and Hexalia cauldrons. */
 public enum CauldronJadeProvider implements IBlockComponentProvider,
         IServerDataProvider<BlockAccessor> {
 

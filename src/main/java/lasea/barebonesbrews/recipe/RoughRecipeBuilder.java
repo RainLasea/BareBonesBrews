@@ -3,7 +3,6 @@ package lasea.barebonesbrews.recipe;
 import net.minecraft.core.Holder;
 import net.minecraft.world.item.alchemy.Potion;
 
-/** Brewing duration shared by generated recipes and recipe viewers. */
 public final class RoughRecipeBuilder {
 
     private RoughRecipeBuilder() {}

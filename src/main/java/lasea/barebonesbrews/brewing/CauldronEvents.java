@@ -17,7 +17,6 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.entity.player.UseItemOnBlockEvent;
 
-/** Owns only interactions actually consumed by rough brewing. */
 @EventBusSubscriber(modid = BareBonesBrews.MODID)
 public final class CauldronEvents {
 
@@ -33,8 +32,6 @@ public final class CauldronEvents {
             return;
         }
 
-        // Sneaking with an item skips the BLOCK use phase. Handle withdrawal before that
-        // decision, and consume it on both sides so the client does not try the other hand.
         if (event.getLevel() instanceof ServerLevel level) {
             ItemStack returned = brew.takeOldestIngredient(level);
             ItemStack held = player.getItemInHand(event.getHand());
@@ -91,7 +88,6 @@ public final class CauldronEvents {
                 }
                 event.cancelWithResult(ItemInteractionResult.sidedSuccess(level.isClientSide));
             } else if (brew.containsPotion() || !brew.hasExactVanillaWaterLevel()) {
-                // Never let the vanilla water interaction bottle an unfinished or sub-bottle potion.
                 event.cancelWithResult(ItemInteractionResult.FAIL);
             }
             return;

@@ -10,7 +10,6 @@ import snownee.jade.api.IWailaPlugin;
 import snownee.jade.api.JadeIds;
 import snownee.jade.api.WailaPlugin;
 
-/** Loaded by Jade only when Jade itself is present. */
 @WailaPlugin
 public final class BareBonesBrewsJadePlugin implements IWailaPlugin {
 

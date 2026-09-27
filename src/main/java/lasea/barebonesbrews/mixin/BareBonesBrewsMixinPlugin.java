@@ -9,7 +9,6 @@ import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
 import net.neoforged.fml.loading.FMLLoader;
 
-/** Selects exactly one cauldron integration before either target class is transformed. */
 public final class BareBonesBrewsMixinPlugin implements IMixinConfigPlugin {
 
     private static final String VANILLA_CAULDRON_MIXIN = ".CauldronEntityBlockMixin";

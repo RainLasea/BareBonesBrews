@@ -4,23 +4,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import lasea.barebonesbrews.brewing.HeatSourceRule;
+import net.minecraft.world.level.block.state.BlockState;
+
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
-/**
- * Everything about the mod that a pack author might reasonably want to change without a recompile.
- *
- * <p>Rough stacks and recipes are created after configuration loads. No option is consulted while a
- * registry is mutable, so values are deterministic and never depend on event ordering.
- */
 @EventBusSubscriber(modid = BareBonesBrews.MODID)
 public final class Config {
 
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
-
-    // ------------------------------------------------------------------ general
 
     public static final ModConfigSpec.BooleanValue ENABLE_ROUGH_POTIONS = BUILDER
             .comment("Create rough (diluted) variants of registered potions.")
@@ -50,21 +45,33 @@ public final class Config {
             .comment("Potion namespaces to leave alone, e.g. \"minecraft\" to only convert modded potions.")
             .defineListAllowEmpty("excluded_namespaces", List.of(), () -> "", Config::isNamespace);
 
-    // ------------------------------------------------------------------ cauldron
-
     public static final ModConfigSpec.BooleanValue ENABLE_CAULDRON = BUILDER
-            .comment("Generate the rough cauldron recipes (mushroom + the potion's original reagent).")
+            .comment("Enable cauldron brewing and its generated recipes.")
             .define("enable_cauldron_recipes", true);
+
+    public static final ModConfigSpec.BooleanValue GENERATE_CAULDRON_RECIPES = BUILDER
+            .comment("Generate default cauldron recipes. Disable to use only datapack/KubeJS recipes; brewing remains enabled.")
+            .define("generate_cauldron_recipes", true);
+
+    private static final List<String> DEFAULT_HEAT_SOURCES = List.of("#barebonesbrews:heat_sources");
+
+    public static final ModConfigSpec.ConfigValue<List<? extends String>> CAULDRON_HEAT_SOURCES = BUILDER
+            .comment("Allowed blocks immediately below vanilla cauldrons. Replaces the whole list; [] disables heating.",
+                    "Accepts block IDs, #block tags and state conditions, e.g. minecraft:furnace[lit=true].",
+                    "Blocks with a lit property must be lit unless explicitly matched with [lit=false].",
+                    "The default tag can be edited with datapacks or KubeJS ServerEvents.tags('block', ...).",
+                    "Unknown IDs, missing properties and invalid property values never match. Does not affect Hexalia.")
+            .defineListAllowEmpty("cauldron_heat_sources", DEFAULT_HEAT_SOURCES,
+                    () -> "minecraft:magma_block", HeatSourceRule::isValid);
 
     static final ModConfigSpec SPEC = BUILDER.build();
 
     private static volatile Set<String> excluded = Set.of();
 
-    /**
-     * True once FML has handed us a loaded config.
-     *
-     * <p>Accessors still tolerate early calls from creative-tab construction in unusual launch paths.
-     */
+    private record HeatRules(List<? extends String> selectors, List<HeatSourceRule> rules) {}
+    private static volatile HeatRules heatRules = new HeatRules(DEFAULT_HEAT_SOURCES,
+            DEFAULT_HEAT_SOURCES.stream().map(HeatSourceRule::parse).toList());
+
     private static volatile boolean ready;
 
     @SubscribeEvent
@@ -87,9 +94,7 @@ public final class Config {
             for (String namespace : EXCLUDED_NAMESPACES.get()) {
                 namespaces.add(namespace);
             }
-        } catch (IllegalStateException ignored) {
-            // Still unloaded; leave the previous set in place.
-        }
+        } catch (IllegalStateException ignored) {}
         excluded = Set.copyOf(namespaces);
         ready = true;
     }
@@ -98,9 +103,6 @@ public final class Config {
         return value instanceof String string && string.matches("[a-z0-9_.-]+");
     }
 
-    // ------------------------------------------------------------------ accessors
-
-    /** Uses the declared default while the config is still unloaded. */
     private static boolean readBoolean(ModConfigSpec.BooleanValue value, boolean fallback) {
         if (!ready) {
             return fallback;
@@ -138,14 +140,31 @@ public final class Config {
         return excluded.contains(namespace);
     }
 
-    /** Mirrors the {@code enable_rough_potions} default of {@code true}. */
     public static boolean roughPotionsEnabled() {
         return readBoolean(ENABLE_ROUGH_POTIONS, true);
     }
 
-    /** Mirrors the {@code enable_cauldron_recipes} default of {@code true}. */
     public static boolean cauldronRecipesEnabled() {
         return readBoolean(ENABLE_CAULDRON, true);
+    }
+
+    public static boolean generateCauldronRecipes() {
+        return readBoolean(GENERATE_CAULDRON_RECIPES, true);
+    }
+
+    public static boolean isCauldronHeatSource(BlockState state) {
+        List<? extends String> selectors = DEFAULT_HEAT_SOURCES;
+        if (ready) {
+            try {
+                selectors = CAULDRON_HEAT_SOURCES.get();
+            } catch (IllegalStateException ignored) {}
+        }
+        HeatRules snapshot = heatRules;
+        if (!snapshot.selectors().equals(selectors)) {
+            snapshot = new HeatRules(List.copyOf(selectors), selectors.stream().map(HeatSourceRule::parse).toList());
+            heatRules = snapshot;
+        }
+        return snapshot.rules().stream().anyMatch(rule -> rule.matches(state));
     }
 
     public static double getDurationMultiplier() {

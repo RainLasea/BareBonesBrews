@@ -10,7 +10,6 @@ import dev.emi.emi.api.widget.WidgetHolder;
 import lasea.barebonesbrews.compat.RoughBrewingStandRecipes;
 import net.minecraft.resources.ResourceLocation;
 
-/** One-bottle view, matching the existing JEI and REI brewing displays. */
 public final class RoughBrewingStandEmiRecipe extends BasicEmiRecipe {
     public RoughBrewingStandEmiRecipe(RoughBrewingStandRecipes.Display recipe) {
         super(VanillaEmiRecipeCategories.BREWING,

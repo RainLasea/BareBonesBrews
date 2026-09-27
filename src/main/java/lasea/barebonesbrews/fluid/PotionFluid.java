@@ -17,7 +17,6 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.fluids.FluidType;
 
-/** A registered, transportable fluid kept in containers; potion components cannot live in a world FluidState. */
 public final class PotionFluid extends Fluid {
     private final Supplier<FluidType> type;
 

@@ -12,13 +12,6 @@ import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 
-/**
- * The block entity type backing rough brewing on a vanilla cauldron.
- *
- * <p>Registered for the vanilla cauldron blocks rather than a block of our own; the block only gains
- * block-entity support because {@code CauldronEntityBlockMixin} adds {@code EntityBlock} to
- * {@code AbstractCauldronBlock}.
- */
 @EventBusSubscriber(modid = BareBonesBrews.MODID)
 public final class ModBrewing {
 
@@ -27,7 +20,6 @@ public final class ModBrewing {
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CauldronBrewBlockEntity>> CAULDRON_BLOCK_ENTITY =
             BLOCK_ENTITIES.register("cauldron_brew", () -> BlockEntityType.Builder
-                    // Every vanilla cauldron block can receive the EntityBlock mixin.
                     .of(CauldronBrewBlockEntity::new,
                             Blocks.CAULDRON, Blocks.WATER_CAULDRON,
                             Blocks.LAVA_CAULDRON, Blocks.POWDER_SNOW_CAULDRON)
@@ -37,7 +29,6 @@ public final class ModBrewing {
 
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-        // NeoForge already provides a water-only CauldronWrapper at normal priority.
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, CAULDRON_BLOCK_ENTITY.get(),
                 (cauldron, side) -> cauldron.fluidHandler());
     }

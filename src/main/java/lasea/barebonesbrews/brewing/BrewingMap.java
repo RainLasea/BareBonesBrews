@@ -22,7 +22,6 @@ import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.crafting.Ingredient;
 
-/** Snapshot of potion transitions, read through narrow mixin accessors. */
 public final class BrewingMap {
 
     private static volatile List<PotionTransition> transitions = List.of();
@@ -54,11 +53,6 @@ public final class BrewingMap {
                 .anyMatch(transition -> transition.ingredient().test(stack));
     }
 
-    /**
-     * Returns the shortest vanilla-style ingredient chain from a rough-potion base.
-     * Mushrooms replace the water-to-awkward step, so water and awkward are both free starting
-     * points. This retains direct water recipes such as weakness without requiring nether wart.
-     */
     public static List<BrewingPath> pathsFromRoughBase() {
         if (transitions.isEmpty()) {
             bootstrap();

@@ -4,7 +4,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.PotionItem;
 
-/** One potion item whose data components identify and describe every rough variant. */
 public final class RoughPotionItem extends PotionItem {
 
     public RoughPotionItem(Properties properties) {

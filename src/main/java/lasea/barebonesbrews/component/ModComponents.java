@@ -7,7 +7,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-/** Persistent identity that connects a rough stack back to its source potion. */
 public final class ModComponents {
 
     public static final DeferredRegister<DataComponentType<?>> COMPONENT_TYPES =

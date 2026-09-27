@@ -8,10 +8,8 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-/** Recipe type + serializer for rough brewing in a vanilla cauldron. */
 public final class ModRecipes {
 
-    /** {@code barebonesbrews:rough_brewing}. */
     public static final ResourceLocation ROUGH_BREWING_ID =
             ResourceLocation.fromNamespaceAndPath(BareBonesBrews.MODID, "rough_brewing");
 

@@ -6,7 +6,6 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 
-/** Restrained, event-driven audio cues for the brew lifecycle. */
 final class CauldronBrewSoundscape {
 
     private CauldronBrewSoundscape() {}

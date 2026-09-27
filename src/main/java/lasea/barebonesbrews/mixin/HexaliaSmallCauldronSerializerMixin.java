@@ -12,7 +12,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** Preserve potion components in the recipe itself, including client recipe synchronization. */
 @Pseudo
 @Mixin(targets = "net.astralya.hexalia.recipe.SmallCauldronRecipe$Serializer", remap = false)
 public abstract class HexaliaSmallCauldronSerializerMixin {
@@ -23,7 +22,6 @@ public abstract class HexaliaSmallCauldronSerializerMixin {
             target = "Lnet/astralya/hexalia/recipe/SmallCauldronRecipe$Serializer;RESULT_CODEC:Lcom/mojang/serialization/Codec;",
             opcode = Opcodes.PUTSTATIC, shift = At.Shift.AFTER), remap = false)
     private static void barebonesbrews$preserveResultComponents(CallbackInfo callback) {
-        // Keep Hexalia's existing {item, count} recipes readable alongside full {id, components} stacks.
         RESULT_CODEC = Codec.withAlternative(ItemStack.CODEC, RESULT_CODEC);
     }
 }

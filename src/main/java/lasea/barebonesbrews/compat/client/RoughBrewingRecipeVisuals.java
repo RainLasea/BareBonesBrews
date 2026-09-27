@@ -31,7 +31,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.client.model.data.ModelData;
 
-/** A block-space scene and layout shared by JEI, REI and EMI. */
 public final class RoughBrewingRecipeVisuals {
 
     public static final int WIDTH = 176;
@@ -41,8 +40,6 @@ public final class RoughBrewingRecipeVisuals {
     public static final int ARROW_X = 127;
     public static final int ARROW_Y = 53;
     public static final int DURATION_Y = 130;
-    // A regular pentagon has equally spaced vertices and a diagonal/side ratio of phi.
-    // Pixel rounding keeps the 18px slots crisp; 50px radius leaves the scene unobstructed.
     public static final int[][] INPUT_SLOTS = createInputSlots();
 
     private static int[][] createInputSlots() {
@@ -66,13 +63,11 @@ public final class RoughBrewingRecipeVisuals {
     private static final float LIQUID_MAX = 13.99F / 16.0F;
     private static final float LIQUID_BOTTOM = 4.01F / 16.0F;
 
-    private RoughBrewingRecipeVisuals() {
-    }
+    private RoughBrewingRecipeVisuals() {}
 
     public static void draw(GuiGraphics graphics, int originX, int originY,
             List<Ingredient> ingredients, ItemStack output) {
         Minecraft minecraft = Minecraft.getInstance();
-        // Small, monotonic values retain sub-tick precision even with long-running worlds.
         float time = (Util.getMillis() % 240000L) / 50.0F;
         float cycle = time % 200.0F;
         float sink = smoothStep((cycle - 90.0F) / 35.0F);
@@ -81,13 +76,11 @@ public final class RoughBrewingRecipeVisuals {
         int resultColor = potion == null ? WATER_COLOR : potion.getColor();
         float mixed = smoothStep(cycle / 125.0F) * (1.0F - smoothStep((cycle - 185.0F) / 15.0F));
 
-        // GuiGraphics.flush() disables depth testing. End 3D batches directly instead.
         graphics.flush();
         PoseStack pose = graphics.pose();
         MultiBufferSource.BufferSource buffers = graphics.bufferSource();
         pose.pushPose();
         try {
-            // Scene vertices stay near z=100, below GUI items (150) and tooltips (400).
             pose.translate(originX + 63.0F, originY + 68.0F, 100.0F);
             pose.scale(28.0F, -28.0F, 28.0F);
             pose.mulPose(Axis.XP.rotationDegrees(25.0F));
@@ -101,7 +94,6 @@ public final class RoughBrewingRecipeVisuals {
             renderBlock(minecraft, pose, buffers, CAULDRON);
             pose.pushPose();
             try {
-                // Campfire logs are seven pixels high: their top supports the cauldron.
                 pose.translate(0.0F, -7.0F / 16.0F, 0.0F);
                 renderBlock(minecraft, pose, buffers, HEAT_SOURCE);
             } finally {
@@ -110,12 +102,9 @@ public final class RoughBrewingRecipeVisuals {
             renderIngredients(minecraft, pose, buffers, ingredients, time, cycle, sink, surface);
             buffers.endBatch();
 
-            // Translucent water follows opaque geometry: the rim occludes it, while
-            // submerged ingredients remain visible through the liquid surface.
             renderLiquid(minecraft, pose, buffers, surface, blend(WATER_COLOR, resultColor, mixed));
             buffers.endBatch();
         } finally {
-            // Submit all scene vertices before any later tooltip rendering.
             buffers.endBatch();
             pose.popPose();
             Lighting.setupFor3DItems();
@@ -179,7 +168,6 @@ public final class RoughBrewingRecipeVisuals {
         float b = LIQUID_MAX;
         float bottom = LIQUID_BOTTOM;
         int color = 0xD8000000 | rgb;
-        // Six textured faces form a liquid volume inside the actual cauldron cavity.
         quad(vertices, pose.last(), sprite, color, 0, 1, 0,
                 a, top, a, a, top, b, b, top, b, b, top, a);
         quad(vertices, pose.last(), sprite, color, 0, 0, -1,

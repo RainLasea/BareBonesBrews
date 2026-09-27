@@ -45,10 +45,6 @@ base {
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
-sourceSets {
-    gameTest
-}
-
 neoForge {
     version = project.neo_version
 
@@ -57,7 +53,17 @@ neoForge {
         minecraftVersion = project.parchment_minecraft_version
     }
 
+    mods {
+        "${mod_id}" {
+            sourceSet(sourceSets.main)
+        }
+    }
+
     runs {
+        configureEach {
+            loadedMods = [mods."${mod_id}"]
+        }
+
         client {
             client()
         }
@@ -73,39 +79,6 @@ neoForge {
             programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
         }
     }
-
-    mods {
-        "${mod_id}" {
-            sourceSet(sourceSets.main)
-        }
-    }
-
-    unitTest {
-        enable()
-        testedMod = mods."${mod_id}"
-        loadedMods = [mods."${mod_id}"]
-    }
-}
-
-neoForge {
-    addModdingDependenciesTo(sourceSets.gameTest)
-    mods {
-        barebonesbrews_tests {
-            sourceSet(sourceSets.gameTest)
-        }
-    }
-    runs {
-        configureEach {
-            loadedMods = [mods."${mod_id}"]
-        }
-        gameTestServer {
-            type = 'gameTestServer'
-            sourceSet = sourceSets.gameTest
-            gameDirectory = file('build/gametest')
-            loadedMods = [mods."${mod_id}", mods.barebonesbrews_tests]
-            systemProperty 'neoforge.enabledGameTestNamespaces', 'barebonesbrews_tests'
-        }
-    }
 }
 
 configurations {
@@ -113,22 +86,12 @@ configurations {
 }
 
 dependencies {
-    gameTestImplementation sourceSets.main.output
-    gameTestImplementation("maven.modrinth:jade:${jade_version}") { transitive = false }
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
-    testImplementation 'org.mockito:mockito-core:5.11.0'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    testImplementation "net.neoforged:testframework:${neo_version}"
     compileOnly("maven.modrinth:jade:${jade_version}") { transitive = false }
     compileOnly("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}") { transitive = false }
     compileOnly("mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}") { transitive = false }
     compileOnly("me.shedaniel:RoughlyEnoughItems-api-neoforge:${rei_version}")
     compileOnly("me.shedaniel:RoughlyEnoughItems-default-plugin-neoforge:${rei_version}")
     compileOnly("dev.emi:emi-neoforge:${emi_version}:api") { transitive = false }
-}
-
-tasks.named('test', Test) {
-    useJUnitPlatform()
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {

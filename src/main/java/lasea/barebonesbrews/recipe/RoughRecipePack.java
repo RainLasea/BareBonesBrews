@@ -45,10 +45,9 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
-/** A small in-memory datapack containing only the recipes valid for this mod set. */
 public final class RoughRecipePack implements PackResources {
 
-    public static final String PACK_ID = BareBonesBrews.MODID + ":generated_recipes";
+    public static final String PACK_ID = BareBonesBrews.MODID + ":default_recipes";
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final Set<String> NAMESPACES = Set.of(BareBonesBrews.MODID);
     private static final String DESCRIPTION = "BareBonesBrews generated recipes";
@@ -57,7 +56,8 @@ public final class RoughRecipePack implements PackResources {
     private static final int HEXALIA_MAX_INGREDIENTS = 4;
 
     private final PackLocationInfo location = new PackLocationInfo(PACK_ID, Component.literal(DESCRIPTION),
-            PackSource.BUILT_IN, Optional.of(new KnownPack(BareBonesBrews.MODID, PACK_ID, modVersion())));
+            PackSource.create(PackSource.BUILT_IN::decorate, false),
+            Optional.of(new KnownPack(BareBonesBrews.MODID, PACK_ID, modVersion())));
     private volatile Map<String, byte[]> contents;
 
     private static String modVersion() {
@@ -115,6 +115,11 @@ public final class RoughRecipePack implements PackResources {
     }
 
     @Override
+    public boolean isHidden() {
+        return true;
+    }
+
+    @Override
     public void close() {}
 
     private Map<String, byte[]> contents() {
@@ -133,7 +138,7 @@ public final class RoughRecipePack implements PackResources {
     private Map<String, byte[]> build() {
         Map<String, byte[]> generated = new TreeMap<>();
         generated.put("pack.mcmeta", json(packMeta()));
-        if (!Config.roughPotionsEnabled() || !Config.cauldronRecipesEnabled()) {
+        if (!Config.roughPotionsEnabled() || !Config.cauldronRecipesEnabled() || !Config.generateCauldronRecipes()) {
             return Map.copyOf(generated);
         }
 

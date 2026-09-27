@@ -15,7 +15,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
-/** Client-only, state-aware cauldron particles. Vanilla remains responsible for the water surface. */
 public final class CauldronBrewEffects {
 
     private static final Map<CauldronBrewBlockEntity, VisualState> STATES = new WeakHashMap<>();

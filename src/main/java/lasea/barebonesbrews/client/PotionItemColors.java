@@ -15,13 +15,6 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 
-/**
- * Client-side wiring for the generated potion items: their tint, and a name-resolution check.
- *
- * <p>Vanilla only registers a potion tint for {@code minecraft:potion}, {@code splash_potion} and
- * {@code lingering_potion}, so our own potion items would otherwise render as a flat white overlay.
- * Layer 0 is the potion-colored liquid and layer 1 is the untinted bottle.
- */
 @EventBusSubscriber(modid = lasea.barebonesbrews.BareBonesBrews.MODID, value = Dist.CLIENT)
 public final class PotionItemColors {
 
@@ -57,13 +50,11 @@ public final class PotionItemColors {
                 ModItems.ROUGH_SPLASH_POTION.get(), ModItems.ROUGH_LINGERING_POTION.get());
     }
 
-    /** Tints the vanilla cauldron model's existing water face; no second liquid surface is drawn. */
     @SubscribeEvent
     static void onRegisterBlockColors(RegisterColorHandlersEvent.Block event) {
         event.register(CAULDRON_WATER_TINT, Blocks.WATER_CAULDRON);
     }
 
-    /** Registers the ingredient-only renderer. The baked vanilla model renders the tinted water. */
     @SubscribeEvent
     static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(ModBrewing.CAULDRON_BLOCK_ENTITY.get(), CauldronBrewRenderer::new);

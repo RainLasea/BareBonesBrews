@@ -10,7 +10,6 @@ import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-/** Item registration and creative-tab population. */
 public final class ModItems {
 
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(BareBonesBrews.MODID);

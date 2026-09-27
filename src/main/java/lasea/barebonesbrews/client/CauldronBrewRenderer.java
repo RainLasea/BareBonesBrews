@@ -18,7 +18,6 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
-/** Renders only physical ingredients; the vanilla cauldron continues to render its own water. */
 public final class CauldronBrewRenderer implements BlockEntityRenderer<CauldronBrewBlockEntity> {
 
     private static final float CENTER = 0.5F;

@@ -8,7 +8,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potion;
 
-/** Post-processes a completed rough potion using the vanilla brewing graph. */
 public final class RoughPotionBrewing {
 
     public static final int POST_PROCESS_DURATION = 200;

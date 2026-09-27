@@ -1,0 +1,12 @@
+{
+  "keys": [
+    { "name": "result", "role": "output", "type": "item_stack" },
+    {
+      "name": "ingredients",
+      "role": "input",
+      "type": { "type": "list", "component": "ingredient", "spread": "sized_ingredient", "min": 1, "max": 5 }
+    },
+    { "name": "duration", "type": { "type": "int", "min": 1 }, "optional": 400 },
+    { "name": "experience", "type": { "type": "float", "min": 0.0 }, "optional": 0.0 }
+  ]
+}

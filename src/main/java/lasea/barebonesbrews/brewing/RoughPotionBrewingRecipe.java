@@ -6,7 +6,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.common.brewing.IBrewingRecipe;
 
-/** Brewing stands only process drinkable rough potions; throwable forms use the cauldron. */
 public final class RoughPotionBrewingRecipe implements IBrewingRecipe {
 
     @Override

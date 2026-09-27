@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import lasea.barebonesbrews.BareBonesBrews;
 import lasea.barebonesbrews.compat.RoughBrewingDisplayRecipes;
+import lasea.barebonesbrews.compat.client.ClientBrewingRecipes;
 import lasea.barebonesbrews.item.ModItems;
 import lasea.barebonesbrews.potion.RoughPotionFactory;
 import mezz.jei.api.IModPlugin;
@@ -24,7 +25,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-/** JEI entry point; JEI discovers this class only when its API is present. */
 @JeiPlugin
 public final class BareBonesBrewsJeiPlugin implements IModPlugin {
 
@@ -72,7 +72,7 @@ public final class BareBonesBrewsJeiPlugin implements IModPlugin {
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
         if (RoughBrewingDisplayRecipes.usesVanillaCauldron()) {
-            registration.addRecipes(RoughBrewingJeiCategory.TYPE, RoughBrewingDisplayRecipes.create());
+            registration.addRecipes(RoughBrewingJeiCategory.TYPE, ClientBrewingRecipes.create());
         }
         registration.addRecipes(RecipeTypes.BREWING, createBrewingStandRecipes(registration));
     }

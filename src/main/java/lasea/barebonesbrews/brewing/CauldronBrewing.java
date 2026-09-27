@@ -2,6 +2,8 @@ package lasea.barebonesbrews.brewing;
 
 import java.util.List;
 
+import lasea.barebonesbrews.Config;
+
 import lasea.barebonesbrews.recipe.CauldronBrewingRecipe;
 import lasea.barebonesbrews.recipe.ModRecipes;
 import net.minecraft.core.BlockPos;
@@ -19,21 +21,18 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
-/** Stateless rules shared by cauldron interaction and ticking. */
 public final class CauldronBrewing {
 
     public static final TagKey<Block> HEAT_SOURCES = TagKey.create(Registries.BLOCK,
-            ResourceLocation.fromNamespaceAndPath("farmersdelight", "heat_sources"));
+            ResourceLocation.fromNamespaceAndPath("barebonesbrews", "heat_sources"));
     public static final int MAX_INGREDIENTS = 5;
 
     private CauldronBrewing() {}
 
     public static boolean isHeated(BlockGetter level, BlockPos pos) {
         BlockState heat = level.getBlockState(pos.below());
-        return heat.is(HEAT_SOURCES)
-                && (!heat.hasProperty(BlockStateProperties.LIT) || heat.getValue(BlockStateProperties.LIT));
+        return Config.isCauldronHeatSource(heat);
     }
 
     public static boolean isFullWaterCauldron(BlockState state) {

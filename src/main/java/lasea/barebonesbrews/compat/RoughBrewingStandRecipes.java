@@ -13,7 +13,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 
-/** All viewers use the same restricted brewing-stand recipes as gameplay. */
 public final class RoughBrewingStandRecipes {
     private RoughBrewingStandRecipes() {}
 

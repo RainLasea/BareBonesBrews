@@ -10,7 +10,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** Keeps custom lingering bottles on vanilla's cloud path, including its duration reduction. */
 @Mixin(ThrownPotion.class)
 public abstract class ThrownPotionMixin {
 
@@ -26,8 +25,6 @@ public abstract class ThrownPotionMixin {
         if (!((ThrownPotion) (Object) this).getItem().is(ModItems.ROUGH_LINGERING_POTION.get())) {
             return contents;
         }
-        // Vanilla quarters registered potion effects, but leaves custom effects untouched.
-        // Rough effects are custom, so scale them here once when the cloud is created.
         return new PotionContents(contents.potion(), contents.customColor(),
                 contents.customEffects().stream().map(effect -> new MobEffectInstance(
                         effect.getEffect(), effect.mapDuration(ticks -> ticks / 4),

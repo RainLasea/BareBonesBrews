@@ -22,6 +22,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
@@ -33,7 +34,6 @@ import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 
-/** The single authoritative state for one brewing cauldron. */
 public final class CauldronBrewBlockEntity extends BlockEntity {
 
     private static final String TAG_ITEMS = "Items";
@@ -64,6 +64,7 @@ public final class CauldronBrewBlockEntity extends BlockEntity {
     private ItemStack previousResult = ItemStack.EMPTY;
     private final CauldronTank fluidTank = new CauldronTank();
     private boolean updatingFluidState;
+    @Nullable private RecipeManager lastRecipeManager;
 
     public CauldronBrewBlockEntity(BlockPos pos, BlockState state) {
         super(ModBrewing.CAULDRON_BLOCK_ENTITY.get(), pos, state);
@@ -94,7 +95,7 @@ public final class CauldronBrewBlockEntity extends BlockEntity {
     }
 
     private void refreshRecipe(ServerLevel level) {
-        // Ingredient changes invalidate both the old result and its elapsed cooking time.
+        lastRecipeManager = level.getRecipeManager();
         resetActiveRecipe();
         RecipeHolder<CauldronBrewingRecipe> match = CauldronBrewing.findExactRecipe(level, ingredients);
         if (match != null) {
@@ -154,7 +155,6 @@ public final class CauldronBrewBlockEntity extends BlockEntity {
                 && (!POST_PROCESS_RECIPE.equals(recipeId) || !previousResult.isEmpty());
     }
 
-    /** Returns the oldest visible ingredient, then re-evaluates the remaining contents. */
     public ItemStack takeOldestIngredient(ServerLevel level) {
         if (!canTakeIngredient()) {
             return ItemStack.EMPTY;
@@ -186,6 +186,19 @@ public final class CauldronBrewBlockEntity extends BlockEntity {
     }
 
     public void serverTick(ServerLevel level) {
+        if (!ready && !ingredients.isEmpty() && !POST_PROCESS_RECIPE.equals(recipeId)
+                && lastRecipeManager != level.getRecipeManager()) {
+            lastRecipeManager = level.getRecipeManager();
+            var match = CauldronBrewing.findExactRecipe(level, ingredients);
+            if (match == null) {
+                resetActiveRecipe();
+                sync();
+            } else if (!match.id().equals(recipeId) || duration != match.value().getDuration()
+                    || !ItemStack.isSameItemSameComponents(result, match.value().getResultItem(level.registryAccess()))) {
+                lockRecipe(level, match);
+                sync();
+            }
+        }
         if (recipeId == null) {
             return;
         }
@@ -240,7 +253,6 @@ public final class CauldronBrewBlockEntity extends BlockEntity {
     public void setBlockState(BlockState state) {
         BlockState previous = getBlockState();
         super.setBlockState(state);
-        // Buckets, washing, rain and burning entities must not leave stale servings behind.
         if (!updatingFluidState && !previous.equals(state) && level != null && !level.isClientSide) {
             clear();
             fluidTank.setFluid(waterForState(state));
@@ -248,7 +260,6 @@ public final class CauldronBrewBlockEntity extends BlockEntity {
         }
     }
 
-    /** This is the same storage used by bottling, saving, Jade and external fluid pipes. */
     @Nullable
     public IFluidHandler fluidHandler() {
         return supportsFluidStorage() ? fluidTank : null;
@@ -306,8 +317,6 @@ public final class CauldronBrewBlockEntity extends BlockEntity {
         if (target.equals(getBlockState())) {
             return;
         }
-        // Changing the vanilla block (empty <-> water) replaces its block entity.
-        // Transfer the exact tank contents to the replacement instead of rounding to its water level.
         CompoundTag snapshot = saveWithoutMetadata(level.registryAccess());
         updatingFluidState = true;
         try {
@@ -431,6 +440,7 @@ public final class CauldronBrewBlockEntity extends BlockEntity {
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
+        lastRecipeManager = null;
         ingredients.clear();
         ListTag list = tag.getList(TAG_ITEMS, Tag.TAG_COMPOUND);
         for (int i = 0; i < list.size(); i++) {
@@ -454,7 +464,6 @@ public final class CauldronBrewBlockEntity extends BlockEntity {
         if (tag.contains(TAG_TANK, Tag.TAG_COMPOUND)) {
             fluidTank.readFromNBT(registries, tag.getCompound(TAG_TANK));
         } else if (ready || POST_PROCESS_RECIPE.equals(recipeId)) {
-            // Migrate worlds from the original item-and-serving storage without losing effects.
             int servings = Math.clamp(tag.getInt(TAG_SERVINGS), 1, 3);
             fluidTank.setFluid(ModFluids.fromBottle(previousResult.isEmpty() ? result : previousResult,
                     servings * ModFluids.BOTTLE_VOLUME));
